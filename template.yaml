@@ -22,9 +22,11 @@ Resources:
       OnStart:
         - Content:
             Fn::Base64: !Sub |
-              pip install --upgrade pip &&
-              pip install AWSIoTPythonSDK numexpr pandas numpy matplotlib boto3 awscli sagemaker pickleshare
-
+              echo "Moontracer notebook started" | tee /tmp/moontracer.log 
+              yum update -y | tee -a /tmp/moontracer.log 
+              pip install --upgrade pip | tee -a /tmp/moontracer.log 
+              pip install AWSIoTPythonSDK numexpr pandas numpy matplotlib boto3 awscli sagemaker pickleshare | tee -a /tmp/moontracer.log 
+              echo "Notebook Instance Lifecycle Config OK" | tee -a /tmp/moontracer.log 
   WorkshopRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -55,7 +57,7 @@ Resources:
       LifecycleConfigName: !GetAtt BasicNotebookInstanceLifecycleConfig.NotebookInstanceLifecycleConfigName
       RoleArn: !GetAtt WorkshopRole.Arn
       AdditionalCodeRepositories:
-        - https://github.com/CaravanaCloud/moontracer-workshop.git
+        - https://github.com/daws25/moontracer-workshop.git
 
 Outputs:
   OpenInstanceLink:
