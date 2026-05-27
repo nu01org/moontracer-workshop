@@ -14,6 +14,11 @@ Parameters:
   NotebookPlatformIdentifier:
     Type: String
     Default: notebook-al2023-v1
+  
+  VolumeSizeInGB:
+    Type: Number
+    Default: 256
+
 
 Resources:
   BasicNotebookInstanceLifecycleConfig:
@@ -56,6 +61,7 @@ Resources:
       PlatformIdentifier: !Ref NotebookPlatformIdentifier
       LifecycleConfigName: !GetAtt BasicNotebookInstanceLifecycleConfig.NotebookInstanceLifecycleConfigName
       RoleArn: !GetAtt WorkshopRole.Arn
+      VolumeSizeInGB: !Ref VolumeSizeInGB
       AdditionalCodeRepositories:
         - https://github.com/daws25/moontracer-workshop.git
 
