@@ -13,7 +13,7 @@ Parameters:
 
   NotebookPlatformIdentifier:
     Type: String
-    Default: notebook-al2-v3
+    Default: notebook-al2023-v1
 
 Resources:
   BasicNotebookInstanceLifecycleConfig:
