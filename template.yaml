@@ -5,7 +5,7 @@ Description: Moontracer Workshop Notebook
 Parameters:
   NotebookInstanceType:
     Type: String
-    Default: ml.t3.medium
+    Default: ml.t3.2xlarge
 
   NotebookPlatformIdentifier:
     Type: String
@@ -13,7 +13,7 @@ Parameters:
 
   VolumeSizeInGB:
     Type: Number
-    Default: 256
+    Default: 64
 
 Resources:
 
@@ -56,50 +56,6 @@ Resources:
                   - iam:PassRole
                 Resource: "*"
 
-  BasicNotebookInstanceLifecycleConfig:
-    Type: AWS::SageMaker::NotebookInstanceLifecycleConfig
-    Properties:
-      OnStart:
-        - Content:
-            Fn::Base64: |
-              #!/bin/bash
-
-              LOG_GROUP="/aws/sagemaker/moontracer"
-              LOG_STREAM=$(hostname)
-              LOG_FILE="/var/log/moontracer.log"
-
-              mkdir -p /home/ec2-user/SageMaker/python-packages
-
-              nohup bash <<'SCRIPT' >/dev/null 2>&1 &
-              echo "$(date) Moontracer setup started" >> /var/log/moontracer.log
-
-              # create log group if missing
-              aws logs create-log-group \
-                --log-group-name "/aws/sagemaker/moontracer" \
-                --region us-east-1 || true
-
-              # create log stream if missing
-              aws logs create-log-stream \
-                --log-group-name "/aws/sagemaker/moontracer" \
-                --log-stream-name "$(hostname)" \
-                --region us-east-1 || true
-
-              SITE_PACKAGES=$(python3 -c "import site; print(site.getsitepackages()[0])")
-
-              echo "/home/ec2-user/SageMaker/python-packages" \
-                > "$SITE_PACKAGES/sagemaker-custom.pth"
-
-              pip install --upgrade pip >> /var/log/moontracer.log 2>&1
-
-              pip install --target /home/ec2-user/SageMaker/python-packages \
-                pandas \
-                numpy \
-                matplotlib \
-                numexpr \
-                AWSIoTPythonSDK \
-                >> /var/log/moontracer.log 2>&1
-
-              echo "$(date) Moontracer setup completed" >> /var/log/moontracer.log
 
   WorkshopNotebookInstance:
     Type: AWS::SageMaker::NotebookInstance
@@ -107,13 +63,7 @@ Resources:
       InstanceType: !Ref NotebookInstanceType
       PlatformIdentifier: !Ref NotebookPlatformIdentifier
       VolumeSizeInGB: !Ref VolumeSizeInGB
-
       RoleArn: !GetAtt WorkshopRole.Arn
-
-      LifecycleConfigName: !GetAtt
-        - BasicNotebookInstanceLifecycleConfig
-        - NotebookInstanceLifecycleConfigName
-
       AdditionalCodeRepositories:
         - https://github.com/daws25/moontracer-workshop.git
 
@@ -123,6 +73,3 @@ Outputs:
     Value: !Sub
       - https://${NotebookName}.notebook.${AWS::Region}.sagemaker.aws/lab/tree/moontracer-workshop/index.ipynb
       - NotebookName: !GetAtt WorkshopNotebookInstance.NotebookInstanceName
-
-  CloudWatchLogsGroup:
-    Value: /aws/sagemaker/moontracer
