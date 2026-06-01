@@ -55,7 +55,7 @@ Resources:
       VolumeSizeInGB: !Ref VolumeSizeInGB
       RoleArn: !GetAtt WorkshopRole.Arn
       AdditionalCodeRepositories:
-        - https://github.com/daws25/moontracer-workshop.git
+        - https://github.com/nu01org/moontracer-workshop.git
 
 Outputs:
   NotebookUrl:

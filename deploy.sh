@@ -16,3 +16,10 @@ aws cloudformation deploy \
   --capabilities CAPABILITY_NAMED_IAM
 
 echo "Deployment complete."
+
+NOTEBOOK_URL=$(aws cloudformation describe-stacks \
+  --stack-name "${STACK_NAME}" \
+  --query "Stacks[0].Outputs[?OutputKey=='NotebookUrl'].OutputValue" \
+  --output text)
+
+echo "NotebookUrl: ${NOTEBOOK_URL}"
